@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<solver xmlns="https://timefold.ai/xsd/solver" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://timefold.ai/xsd/solver https://timefold.ai/xsd/solver/solver.xsd">
+    <randomSeed>0</randomSeed>
+
+    <!-- Define the model -->
+    <solutionClass>ai.timefold.solver.examples.oled.domain.OledSchedule</solutionClass>
+    <entityClass>ai.timefold.solver.examples.oled.domain.ProductionJob</entityClass>
+
+    <!-- Define the score function -->
+    <scoreDirectorFactory>
+        <constraintProviderClass>ai.timefold.solver.examples.oled.score.OledSchedulingConstraintProvider</constraintProviderClass>
+        <!--        https://timefold.ai/docs/timefold-solver/latest/score-calculation/score-calculation.html#initializingScoreTrend-->
+        <!--        Most use cases only have negative constraints. Many of those have an InitializingScoreTrend that only goes down:-->
+        <initializingScoreTrend>ONLY_DOWN</initializingScoreTrend>
+    </scoreDirectorFactory>
+
+    <noChangePhase/>
+</solver>

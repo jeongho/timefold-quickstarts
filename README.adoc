@@ -46,6 +46,13 @@ $ git clone https://github.com/TimefoldAI/timefold-quickstarts.git
 $ cd timefold-quickstarts
 $ ./runQuickstartsFromSource.sh
 ----
+. Run the PlanNEL examples:
++
+----
+$ mvn verify -DskipTests
+$ cd plannel/examples
+$ mvn exec:java
+----
 
 == Use cases
 

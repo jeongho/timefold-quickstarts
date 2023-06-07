@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<solver xmlns="https://timefold.ai/xsd/solver" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://timefold.ai/xsd/solver https://timefold.ai/xsd/solver/solver.xsd">
+    <!--    https://timefold.ai/docs/timefold-solver/latest/score-calculation/score-calculation.html#invalidScoreDetection-->
+    <!-- To slowly prove there are no bugs in this code -->
+    <!--    <environmentMode>FULL_ASSERT</environmentMode>-->
+    <!--    <environmentMode>FAST_ASSERT</environmentMode>-->
+    <randomSeed>0</randomSeed>
+
+    <solutionClass>ai.timefold.solver.examples.oled.domain.OledSchedule</solutionClass>
+    <entityClass>ai.timefold.solver.examples.oled.domain.ProductionJob</entityClass>
+
+    <scoreDirectorFactory>
+        <constraintProviderClass>ai.timefold.solver.examples.oled.score.OledSchedulingConstraintProvider</constraintProviderClass>
+        <initializingScoreTrend>ONLY_DOWN</initializingScoreTrend>
+    </scoreDirectorFactory>
+
+    <!-- Optimization algorithms configuration -->
+    <termination><!-- Solver termination -->
+        <!-- ISO 8601 format P[n]Y[n]M[n]DT[n]H[n]M[n]S -->
+        <spentLimit>PT05M</spentLimit>
+    </termination>
+
+    <constructionHeuristic/>
+
+    <!--  https://timefold.ai/docs/timefold-solver/latest/optimization-algorithms/optimization-algorithms.html#whichOptimizationAlgorithmsShouldIUse-->
+    <!--  https://stackoverflow.com/questions/36802284/optaplanner-how-to-specify-multiple-algorithms-->
+    <!--  https://stackoverflow.com/questions/60415436/how-can-i-configurate-the-late-acceptance-algorithm-->
+    <!--# Sequence-->
+    <!-- Second phase: Late Acceptance -->
+    <localSearch>
+        <termination><!-- Phase termination -->
+            <terminationCompositionStyle>AND</terminationCompositionStyle>
+            <!--            <spentLimit>PT1M</spentLimit>-->
+            <!--            <bestScoreFeasible>true</bestScoreFeasible>-->
+            <unimprovedSpentLimit>PT30S</unimprovedSpentLimit>
+            <unimprovedStepCountLimit>1000</unimprovedStepCountLimit>
+        </termination>
+        <localSearchType>LATE_ACCEPTANCE</localSearchType>
+    </localSearch>
+    <!-- Third phase: Tabu Search-->
+    <localSearch>
+        <termination><!-- Phase termination -->
+            <terminationCompositionStyle>AND</terminationCompositionStyle>
+            <!--            <spentLimit>PT1M</spentLimit>-->
+            <!--            <bestScoreFeasible>true</bestScoreFeasible>-->
+            <unimprovedSpentLimit>PT30S</unimprovedSpentLimit>
+            <unimprovedStepCountLimit>1000</unimprovedStepCountLimit>
+        </termination>
+        <localSearchType>TABU_SEARCH</localSearchType>
+    </localSearch>
+</solver>

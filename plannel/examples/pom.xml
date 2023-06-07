@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+<!--  <parent>-->
+<!--    <groupId>ai.timefold.solver</groupId>-->
+<!--    <artifactId>timefold-solver-build-parent</artifactId>-->
+<!--    <version>1.1.0-SNAPSHOT</version>-->
+<!--    <relativePath>../build/build-parent/pom.xml</relativePath>-->
+<!--  </parent>-->
+  <groupId>ai.timefold.solver</groupId>
+  <artifactId>timefold-solver-plannel-oled-examples</artifactId>
+  <version>1.1.0</version>
+
+  <properties>
+    <java.module.name>ai.timefold.solver.examples</java.module.name>
+
+    <!-- ai.timefold.solver.core.enterprise.PartitionedSearchEnterpriseService.buildPartitionedSearch -->
+    <version.ai.timefold.solver>1.1.0</version.ai.timefold.solver>
+    <!-- Open Source Partitioner before v1.0.0-->
+<!--    <version.ai.timefold.solver>0.9.39</version.ai.timefold.solver>-->
+    <version.org.assertj>3.24.2</version.org.assertj>
+    <version.org.junit.jupiter>5.9.0</version.org.junit.jupiter>
+    <version.org.logback>1.4.7</version.org.logback>
+
+    <version.compiler.plugin>3.11.0</version.compiler.plugin>
+    <version.surefire.plugin>3.1.0</version.surefire.plugin>
+    <version.assembly.plugin>3.5.0</version.assembly.plugin>
+
+    <!-- From build/build-parent/pom.xml -->
+    <!-- ************************************************************************ -->
+    <!-- Dependencies -->
+    <!-- ************************************************************************ -->
+    <version.ch.qos.logback>1.4.8</version.ch.qos.logback>
+    <version.org.apache.logging.log4j>2.20.0</version.org.apache.logging.log4j>
+    <version.io.quarkus>3.2.0.Final</version.io.quarkus>
+    <version.org.apache.commons.math3>3.6.1</version.org.apache.commons.math3>
+    <version.org.apache.commons.text>1.10.0</version.org.apache.commons.text>
+    <version.org.apache.poi>5.2.3</version.org.apache.poi>
+    <version.org.assertj>3.24.2</version.org.assertj>
+    <version.org.freemarker>2.3.32</version.org.freemarker>
+    <version.org.jdom2>2.0.6.1</version.org.jdom2>
+    <version.org.jfree.jfreechart>1.5.4</version.org.jfree.jfreechart>
+    <version.org.openrewrite.recipe>2.0.5</version.org.openrewrite.recipe>
+    <version.org.slf4j>2.0.7</version.org.slf4j><!-- TODO keep in sync with quarkus-bom -->
+    <version.org.springframework>6.0.10</version.org.springframework>
+    <version.org.springframework.boot>3.1.1</version.org.springframework.boot>
+    <version.org.webjars.webjars-locator>0.47</version.org.webjars.webjars-locator>
+    <version.org.webjars.bootstrap>5.2.3</version.org.webjars.bootstrap>
+    <version.org.webjars.jquery>3.6.4</version.org.webjars.jquery>
+
+    <!-- ************************************************************************ -->
+    <!-- Plugins -->
+    <!-- ************************************************************************ -->
+    <version.asciidoctor.plugin>2.2.4</version.asciidoctor.plugin>
+    <version.assembly.plugin>3.6.0</version.assembly.plugin>
+    <version.compiler.plugin>3.11.0</version.compiler.plugin>
+    <version.dependency.plugin>3.6.0</version.dependency.plugin>
+    <version.enforcer.plugin>3.3.0</version.enforcer.plugin>
+    <version.formatter.plugin>2.23.0</version.formatter.plugin>
+    <version.impsort.plugin>1.9.0</version.impsort.plugin>
+    <version.jacoco.plugin>0.8.10</version.jacoco.plugin>
+    <version.jar.plugin>3.3.0</version.jar.plugin>
+    <version.jaxb2.plugin>3.1.0</version.jaxb2.plugin>
+    <version.resources.plugin>3.3.1</version.resources.plugin>
+    <version.revapi.plugin>0.15.0</version.revapi.plugin>
+    <version.sonar.plugin>3.9.1.2184</version.sonar.plugin>
+    <version.surefire.plugin>3.1.2</version.surefire.plugin>
+    <version.versions.plugin>2.16.0</version.versions.plugin>
+
+    <!-- Plugin configuration properties -->
+    <maven.min.version>3.9.2</maven.min.version>
+    <maven.compiler.release>17</maven.compiler.release>
+    <!-- This property needs to be defined in all modules that use the packaging 'jar'.
+         It is used by different plugins to make sure the module/bundle names are consistent. -->
+    <java.module.name/>
+    <formatter.skip>false</formatter.skip>
+    <formatter.goal>format</formatter.goal>
+    <!-- TODO name import should indicate it's related to formatting -->
+    <impsort.goal>sort</impsort.goal>
+    <!-- JaCoCo coverage data file location -->
+    <jacoco.exec.file>${project.root.dir}/target/jacoco.exec</jacoco.exec.file>
+    <jacoco.agent.argLine/>
+    <enforcer.failOnDuplicatedClasses>true</enforcer.failOnDuplicatedClasses>
+    <!-- Latest release to be used by api-compatibility-check to check backwards compatibility of the API. -->
+    <revapi.oldTimefoldVersion>0.9.38</revapi.oldTimefoldVersion>
+    <!--suppress UnresolvedMavenProperty-->
+    <project.root.dir>${maven.multiModuleProjectDirectory}</project.root.dir>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <schema.filename.benchmark>benchmark-with-import.xsd</schema.filename.benchmark>
+    <schema.filename.solver>solver.xsd</schema.filename.solver>
+    <sonar.coverage.exclusions>**/swingui/**/*.java</sonar.coverage.exclusions>
+  </properties>
+
+<build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <configuration>
+          <ignoredUsedUndeclaredDependencies>
+            <dependency>ai.timefold.solver:timefold-solver-core-impl:jar</dependency>
+          </ignoredUsedUndeclaredDependencies>
+          <ignoredUnusedDeclaredDependencies>
+            <dependency>ai.timefold.solver:timefold-solver-core:jar</dependency>
+          </ignoredUnusedDeclaredDependencies>
+        </configuration>
+        <version>${version.dependency.plugin}</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${version.compiler.plugin}</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${version.surefire.plugin}</version>
+      </plugin>
+    </plugins> 
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <systemPropertyVariables>
+              <java.awt.headless>true</java.awt.headless>
+            </systemPropertyVariables>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <!-- WARNING: This configuration must be run with "mvn exec:java" not "mvn exec:exec". -->
+          <!-- It is impossible to write a configuration that is compatible with both exec:java and exec:exec -->
+          <configuration>
+            <mainClass>ai.timefold.solver.examples.app.TimefoldExamplesApp</mainClass>
+            <arguments>
+              <argument>-Xms256m</argument>
+              <!-- Most examples run (potentially slower) with max heap of 128 MB (so -Xmx128m), but 1 example's dataset requires 2 GB -->
+              <argument>-Xmx2g</argument>
+            </arguments>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <!-- TODO: Move to timefold-solver-build-parent once https://github.com/quarkusio/quarkus-platform-bom-generator/issues/64 is solved.  -->
+  <dependencyManagement>
+    <dependencies>
+      <!-- From build/build-parent/pom.xml -->
+      <dependency>
+        <groupId>ai.timefold.solver</groupId>
+        <artifactId>timefold-solver-bom</artifactId>
+        <version>${version.ai.timefold.solver}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-bom</artifactId>
+        <version>${version.io.quarkus}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- Normal dependencies versions-->
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>${version.ch.qos.logback}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${version.ch.qos.logback}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-to-slf4j</artifactId>
+        <version>${version.org.apache.logging.log4j}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-math3</artifactId>
+        <version>${version.org.apache.commons.math3}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${version.org.assertj}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.freemarker</groupId>
+        <artifactId>freemarker</artifactId>
+        <version>${version.org.freemarker}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jfree</groupId>
+        <artifactId>jfreechart</artifactId>
+        <version>${version.org.jfree.jfreechart}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>32.1.1-jre</version>
+      </dependency>
+
+      <!-- OpenRewrite -->
+      <dependency>
+        <groupId>org.openrewrite.recipe</groupId>
+        <artifactId>rewrite-recipe-bom</artifactId>
+        <version>${version.org.openrewrite.recipe}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jcl-over-slf4j</artifactId>
+        <version>${version.org.slf4j}</version>
+      </dependency>
+
+      <!-- Webjars -->
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>webjars-locator</artifactId>
+        <version>${version.org.webjars.webjars-locator}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>bootstrap</artifactId>
+        <version>${version.org.webjars.bootstrap}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>jquery</artifactId>
+        <version>${version.org.webjars.jquery}</version>
+        <scope>runtime</scope>
+      </dependency>
+
+      <!-- Original -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-text</artifactId>
+        <version>${version.org.apache.commons.text}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jdom</groupId>
+        <artifactId>jdom2</artifactId>
+        <version>${version.org.jdom2}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi</artifactId>
+        <version>${version.org.apache.poi}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi-ooxml</artifactId>
+        <version>${version.org.apache.poi}</version>
+        <exclusions>
+          <exclusion>
+            <!-- Collides with 'javax.xml.stream:stax-api' brought in by 'org.drools:drools-decisiontables'. -->
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.json</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <!-- Internal dependencies -->
+    <dependency>
+      <groupId>ai.timefold.solver</groupId>
+      <artifactId>timefold-solver-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ai.timefold.solver</groupId>
+      <artifactId>timefold-solver-persistence-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ai.timefold.solver</groupId>
+      <artifactId>timefold-solver-jackson</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ai.timefold.solver</groupId>
+      <artifactId>timefold-solver-benchmark</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ai.timefold.solver</groupId>
+      <artifactId>timefold-solver-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- External dependencies -->
+    <dependency>
+      <groupId>jakarta.json</groupId>
+      <artifactId>jakarta.json-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jfree</groupId>
+      <artifactId>jfreechart</artifactId>
+    </dependency>
+    <!-- Common utils -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+    <!-- Logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-to-slf4j</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <!-- JSON -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <!-- Testing -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Examples only dependencies. -->
+    <!-- Converters -->
+    <dependency>
+      <groupId>org.jdom</groupId>
+      <artifactId>jdom2</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ai.timefold.solver</groupId>
+      <artifactId>timefold-solver-core-impl</artifactId>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>

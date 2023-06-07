@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plannerBenchmark xmlns="https://timefold.ai/xsd/benchmark" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://timefold.ai/xsd/benchmark https://timefold.ai/xsd/benchmark/benchmark.xsd">
+  <benchmarkDirectory>local/data/oled</benchmarkDirectory>
+
+<!--  https://timefold.ai/docs/timefold-solver/latest/benchmarking-and-tweaking/benchmarking-and-tweaking.html#warmingUpTheHotSpotCompiler-->
+<!--  Without a warm up, the results of the first (or first few) benchmarks are not reliable because they lose CPU time on HotSpot JIT compilation.-->
+  <warmUpSecondsSpentLimit>30</warmUpSecondsSpentLimit>
+
+<!--  <parallelBenchmarkCount>AUTO</parallelBenchmarkCount>-->
+
+  <inheritedSolverBenchmark>
+    <solver>
+      <randomSeed>0</randomSeed>
+
+      <solutionClass>ai.timefold.solver.examples.oled.domain.OledSchedule</solutionClass>
+      <entityClass>ai.timefold.solver.examples.oled.domain.ProductionJob</entityClass>
+      <scoreDirectorFactory>
+        <constraintProviderClass>ai.timefold.solver.examples.oled.score.OledSchedulingConstraintProvider</constraintProviderClass>
+        <initializingScoreTrend>ONLY_DOWN</initializingScoreTrend>
+      </scoreDirectorFactory>
+      <termination>
+        <minutesSpentLimit>5</minutesSpentLimit>
+<!--        <minutesSpentLimit>10</minutesSpentLimit>-->
+<!--        <minutesSpentLimit>30</minutesSpentLimit>-->
+      </termination>
+    </solver>
+    <problemBenchmarks>
+      <solutionFileIOClass>ai.timefold.solver.examples.oled.persistence.OledSchedulingXlsxFileIO</solutionFileIOClass>
+<!--      <inputSolutionFile>data/oled/unsolved/oled1-2c-3o-30ts.xlsx</inputSolutionFile>-->
+<!--      <inputSolutionFile>data/oled/unsolved/oled1-2c-3o-30ts-over-100.xlsx</inputSolutionFile>-->
+<!--      <inputSolutionFile>data/oled/unsolved/oled1-2c-3o-30ts-over-650.xlsx</inputSolutionFile>-->
+<!--      <inputSolutionFile>data/oled/unsolved/oled2-4c-3o-30ts.xlsx</inputSolutionFile>-->
+<!--      <inputSolutionFile>data/oled/unsolved/oled3-6c-15o-30ts.xlsx</inputSolutionFile>-->
+<!--      <inputSolutionFile>data/oled/unsolved/oled4-2c-3o-30ts-baking.xlsx</inputSolutionFile>-->
+<!--      <inputSolutionFile>data/oled/unsolved/oled5-6c-19o-30ts-baking.xlsx</inputSolutionFile>-->
+<!--      <inputSolutionFile>data/oled/unsolved/oled6-6c-30o-60ts-baking.xlsx</inputSolutionFile>-->
+<!--      <inputSolutionFile>data/oled/unsolved/oled7-2c-4o-30ts-baking-maint.xlsx</inputSolutionFile>-->
+<!--      <inputSolutionFile>data/oled/unsolved/oled8-6c-20o-30ts-baking-maint.xlsx</inputSolutionFile>-->
+
+      <inputSolutionFile>data/oled/unsolved/oled-bench-2c-11o-30ts-baking-maint.xlsx</inputSolutionFile>
+      <inputSolutionFile>data/oled/unsolved/oled-bench-4c-21o-30ts-baking-maint.xlsx</inputSolutionFile>
+      <inputSolutionFile>data/oled/unsolved/oled-bench-6c-31o-30ts-baking-maint.xlsx</inputSolutionFile>
+      <inputSolutionFile>data/oled/unsolved/oled-bench-20c-101o-30ts-baking-maint.xlsx</inputSolutionFile>
+      <inputSolutionFile>data/oled/unsolved/oled-bench-40c-201o-30ts-baking-maint.xlsx</inputSolutionFile>
+      <inputSolutionFile>data/oled/unsolved/oled-bench-100c-501o-30ts-baking-maint.xlsx</inputSolutionFile>
+      <inputSolutionFile>data/oled/unsolved/oled-bench-200c-1001o-30ts-baking-maint.xlsx</inputSolutionFile>
+
+      <inputSolutionFile>data/oled/unsolved/oled-bench-2c-11o-60ts-baking-maint.xlsx</inputSolutionFile>
+      <inputSolutionFile>data/oled/unsolved/oled-bench-4c-21o-60ts-baking-maint.xlsx</inputSolutionFile>
+      <inputSolutionFile>data/oled/unsolved/oled-bench-6c-31o-60ts-baking-maint.xlsx</inputSolutionFile>
+      <inputSolutionFile>data/oled/unsolved/oled-bench-20c-101o-60ts-baking-maint.xlsx</inputSolutionFile>
+      <inputSolutionFile>data/oled/unsolved/oled-bench-40c-201o-60ts-baking-maint.xlsx</inputSolutionFile>
+      <inputSolutionFile>data/oled/unsolved/oled-bench-100c-501o-60ts-baking-maint.xlsx</inputSolutionFile>
+      <inputSolutionFile>data/oled/unsolved/oled-bench-200c-1001o-60ts-baking-maint.xlsx</inputSolutionFile>
+
+      <!--<problemStatisticType>BEST_SCORE</problemStatisticType>-->
+      <!--<problemStatisticType>STEP_SCORE</problemStatisticType>-->
+      <!--<problemStatisticType>SCORE_CALCULATION_SPEED</problemStatisticType>-->
+      <!--<problemStatisticType>BEST_SOLUTION_MUTATION</problemStatisticType>-->
+      <!--<problemStatisticType>MOVE_COUNT_PER_STEP</problemStatisticType>-->
+      <!--<problemStatisticType>MEMORY_USE</problemStatisticType>-->
+      <!--<singleStatisticType>CONSTRAINT_MATCH_TOTAL_BEST_SCORE</singleStatisticType>-->
+      <!--<singleStatisticType>CONSTRAINT_MATCH_TOTAL_STEP_SCORE</singleStatisticType>-->
+      <!--<singleStatisticType>PICKED_MOVE_TYPE_BEST_SCORE_DIFF</singleStatisticType>-->
+      <!--<singleStatisticType>PICKED_MOVE_TYPE_STEP_SCORE_DIFF</singleStatisticType>-->
+    </problemBenchmarks>
+  </inheritedSolverBenchmark>
+
+
+<!--  The following SolverBenchmarkBluePrintTypes are supported:-->
+<!--  1. CONSTRUCTION_HEURISTIC_WITH_AND_WITHOUT_LOCAL_SEARCH: Run the default Construction Heuristic type with and without the default Local Search type.-->
+<!--  2. EVERY_CONSTRUCTION_HEURISTIC_TYPE: Run every Construction Heuristic type (First Fit, First Fit Decreasing, Cheapest Insertion, …​).-->
+<!--  3. EVERY_LOCAL_SEARCH_TYPE: Run every Local Search type (Tabu Search, Late Acceptance, …​) with the default Construction Heuristic.-->
+<!--  4. EVERY_CONSTRUCTION_HEURISTIC_TYPE_WITH_EVERY_LOCAL_SEARCH_TYPE: Run every Construction Heuristic type with every Local Search type.  -->
+  <solverBenchmarkBluePrint>
+    <solverBenchmarkBluePrintType>EVERY_LOCAL_SEARCH_TYPE</solverBenchmarkBluePrintType>
+  </solverBenchmarkBluePrint>
+
+<!--  <solverBenchmark>-->
+<!--  <name>First Fit</name>-->
+<!--  <solver>-->
+<!--  <constructionHeuristic>-->
+<!--  <constructionHeuristicType>FIRST_FIT</constructionHeuristicType>-->
+<!--  </constructionHeuristic>-->
+<!--  </solver>-->
+
+<!--  </solverBenchmark>-->
+<!--  <solverBenchmark>-->
+<!--  <name>First Fit Decreasing</name>-->
+<!--  <solver>-->
+<!--  <constructionHeuristic>-->
+<!--  <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>-->
+<!--  </constructionHeuristic>-->
+<!--  </solver>-->
+<!--  </solverBenchmark>-->
+
+<!--  <solverBenchmark>-->
+<!--  <name>Tabu Search</name>-->
+<!--  <solver>-->
+<!--  <constructionHeuristic>-->
+<!--  <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>-->
+<!--  </constructionHeuristic>-->
+<!--  <localSearch>-->
+<!--  <unionMoveSelector>-->
+<!--  <changeMoveSelector/>-->
+<!--  <swapMoveSelector/>-->
+<!--  <pillarChangeMoveSelector/>-->
+<!--  <pillarSwapMoveSelector/>-->
+<!--  </unionMoveSelector>-->
+<!--  <acceptor>-->
+<!--  <entityTabuSize>7</entityTabuSize>-->
+<!--  </acceptor>-->
+<!--  <forager>-->
+<!--  <acceptedCountLimit>1000</acceptedCountLimit>-->
+<!--  </forager>-->
+<!--  </localSearch>-->
+<!--  </solver>-->
+<!--  </solverBenchmark>-->
+  <!--<solverBenchmark>-->
+  <!--<name>Simulated Annealing</name>-->
+  <!--<solver>-->
+  <!--<constructionHeuristic>-->
+  <!--<constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>-->
+  <!--</constructionHeuristic>-->
+  <!--<localSearch>-->
+  <!--<unionMoveSelector>-->
+  <!--<changeMoveSelector/>-->
+  <!--<swapMoveSelector/>-->
+  <!--<pillarChangeMoveSelector/>-->
+  <!--<pillarSwapMoveSelector/>-->
+  <!--</unionMoveSelector>-->
+  <!--<acceptor>-->
+  <!--<simulatedAnnealingStartingTemperature>0hard/400soft</simulatedAnnealingStartingTemperature>-->
+  <!--</acceptor>-->
+  <!--<forager>-->
+  <!--<acceptedCountLimit>4</acceptedCountLimit>-->
+  <!--</forager>-->
+  <!--</localSearch>-->
+  <!--</solver>-->
+  <!--</solverBenchmark>-->
+  <!--<solverBenchmark>-->
+  <!--<name>Late Acceptance</name>-->
+  <!--<solver>-->
+  <!--<constructionHeuristic>-->
+  <!--<constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>-->
+  <!--</constructionHeuristic>-->
+  <!--<localSearch>-->
+  <!--<unionMoveSelector>-->
+  <!--<changeMoveSelector/>-->
+  <!--<swapMoveSelector/>-->
+  <!--<pillarChangeMoveSelector/>-->
+  <!--<pillarSwapMoveSelector/>-->
+  <!--</unionMoveSelector>-->
+  <!--<acceptor>-->
+  <!--<lateAcceptanceSize>400</lateAcceptanceSize>-->
+  <!--</acceptor>-->
+  <!--<forager>-->
+  <!--<acceptedCountLimit>4</acceptedCountLimit>-->
+  <!--</forager>-->
+  <!--</localSearch>-->
+  <!--</solver>-->
+  <!--</solverBenchmark>-->
+
+  <!--<solverBenchmark>-->
+  <!--<name>BRANCH_AND_BOUND</name>-->
+  <!--<solver>-->
+  <!--<exhaustiveSearch>-->
+  <!--<exhaustiveSearchType>BRANCH_AND_BOUND</exhaustiveSearchType>-->
+  <!--</exhaustiveSearch>-->
+  <!--</solver>-->
+<!--  </solverBenchmark>-->
+</plannerBenchmark>

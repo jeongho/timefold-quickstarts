@@ -20,6 +20,7 @@
   </properties>
 
   <modules>
+    <module>plannel/examples</module>
     <module>hello-world</module>
     <module>technology/java-spring-boot</module>
     <module>technology/kotlin-quarkus</module>

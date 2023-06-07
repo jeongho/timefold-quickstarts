@@ -40,7 +40,7 @@ $ gradle bootRun
 == Run the packaged application
 
 When you're ready to deploy the application,
-package the project to run as a conventional jar file.
+package the product to run as a conventional jar file.
 
 . Build it with Maven:
 +

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<solver xmlns="https://timefold.ai/xsd/solver" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://timefold.ai/xsd/solver https://timefold.ai/xsd/solver/solver.xsd">
+  <!-- To slowly prove there are no bugs in this code -->
+  <!--<environmentMode>FULL_ASSERT</environmentMode>-->
+  <randomType>MERSENNE_TWISTER</randomType>
+  <randomSeed>0</randomSeed>
+  <!-- To solve faster by saturating multiple CPU cores -->
+  <!--<moveThreadCount>AUTO</moveThreadCount>-->
+
+  <!-- Domain model configuration -->
+  <solutionClass>ai.timefold.solver.examples.cloudbalancing.domain.CloudBalance</solutionClass>
+  <entityClass>ai.timefold.solver.examples.cloudbalancing.domain.CloudProcess</entityClass>
+
+  <!-- Score configuration -->
+  <scoreDirectorFactory>
+    <!--<easyScoreCalculatorClass>ai.timefold.solver.examples.cloudbalancing.optional.score.CloudBalancingEasyScoreCalculator</easyScoreCalculatorClass>-->
+    <!--<easyScoreCalculatorClass>ai.timefold.solver.examples.cloudbalancing.optional.score.CloudBalancingMapBasedEasyScoreCalculator</easyScoreCalculatorClass>-->
+    <constraintProviderClass>ai.timefold.solver.examples.cloudbalancing.score.CloudBalancingConstraintProvider</constraintProviderClass>
+    <!--<incrementalScoreCalculatorClass>ai.timefold.solver.examples.cloudbalancing.optional.score.CloudBalancingIncrementalScoreCalculator</incrementalScoreCalculatorClass>-->
+    <initializingScoreTrend>ONLY_DOWN</initializingScoreTrend>
+    <!--<assertionScoreDirectorFactory>-->
+      <!--<easyScoreCalculatorClass>ai.timefold.solver.examples.cloudbalancing.optional.score.CloudBalancingMapBasedEasyScoreCalculator</easyScoreCalculatorClass>-->
+    <!--</assertionScoreDirectorFactory>-->
+  </scoreDirectorFactory>
+
+  <!-- Optimization algorithms configuration -->
+  <termination>
+    <spentLimit>PT5M</spentLimit>
+  </termination>
+
+  <!-- Power tweaked optimization algorithms configuration -->
+  <!--<constructionHeuristic>-->
+    <!--<constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>-->
+  <!--</constructionHeuristic>-->
+  <!--<localSearch>-->
+    <!--<unionMoveSelector>-->
+      <!--<changeMoveSelector/>-->
+      <!--<swapMoveSelector/>-->
+      <!--<pillarChangeMoveSelector/>-->
+      <!--<pillarSwapMoveSelector/>-->
+    <!--</unionMoveSelector>-->
+    <!--<acceptor>-->
+      <!--<entityTabuSize>7</entityTabuSize>-->
+    <!--</acceptor>-->
+    <!--<forager>-->
+      <!--<acceptedCountLimit>1000</acceptedCountLimit>-->
+    <!--</forager>-->
+  <!--</localSearch>-->
+
+  <!-- Alternative power tweaked optimization algorithms configuration -->
+  <!--  A common configuration is to first run a Partitioned Search phase (which includes a Construction Heuristic and a Local Search) followed by a non-partitioned Local Search phase:-->
+  <partitionedSearch>
+    <termination>
+      <spentLimit>PT3M</spentLimit>
+    </termination>
+    <solutionPartitionerClass>ai.timefold.solver.examples.cloudbalancing.optional.partitioner.CloudBalancePartitioner</solutionPartitionerClass>
+    <solutionPartitionerCustomProperties>
+      <!--      <partCount>4</partCount>-->
+      <!--      <minimumProcessListSize>300</minimumProcessListSize>-->
+      <property name="partCount" value="8"/>
+      <property name="minimumProcessListSize" value="100"/>
+    </solutionPartitionerCustomProperties>
+    <runnablePartThreadLimit>AUTO</runnablePartThreadLimit>
+    <constructionHeuristic/>
+<!--    <constructionHeuristic>-->
+<!--      <termination>&lt;!&ndash; Phase termination &ndash;&gt;-->
+<!--        <spentLimit>PT5S</spentLimit>-->
+<!--      </termination>-->
+<!--      <constructionHeuristicType>FIRST_FIT</constructionHeuristicType>-->
+<!--    </constructionHeuristic>-->
+    <localSearch>
+      <termination>
+        <spentLimit>PT60S</spentLimit>
+      </termination>
+    </localSearch>
+  </partitionedSearch>
+  <localSearch/>
+<!--  <localSearch>-->
+<!--    <termination>-->
+<!--      <spentLimit>PT2M</spentLimit>-->
+<!--    </termination>-->
+<!--    <localSearchType>TABU_SEARCH</localSearchType>-->
+<!--  </localSearch>-->
+</solver>
