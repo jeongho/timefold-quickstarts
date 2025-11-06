@@ -2,7 +2,7 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      version:
+      javaVersion:
         description: 'Community Edition version (e.g. 1.0.0)'
         required: true
       developmentBranch:
@@ -13,104 +13,107 @@ on:
         description: 'Stable branch to merge the development branch into'
         default: stable
         required: true
-      releaseBranch:
-        description: 'Release branch to create (e.g. 1.0.x for version 1.0.0; once created, branch protection rules apply)'
-        default: dry_run
-        required: true
-      nextVersion:
-        description: 'Next version after release (e.g. 1.1.0, -SNAPSHOT will be added automatically)'
-        required: true
-      nextMicroVersion:
-        description: 'Next version after release for release branch (e.g. 1.0.1, -SNAPSHOT will be added automatically)'
-        required: true
 jobs:
   build:
     env:
       MAVEN_ARGS: "--no-transfer-progress --batch-mode"
-    runs-on: ubuntu-latest
+      RELEASE_BRANCH_NAME: "release_branch_${{ github.event.inputs.javaVersion }}"
+    runs-on: self-hosted
     steps:
-      - name: Print inputs to the release workflow
-        run: echo "${{ toJSON(github.event.inputs) }}"
-      - name: Checkout the relevant timefold-solver tag
-        uses: actions/checkout@v3
+      - name: Checkout timefold-quickstarts
+        uses: actions/checkout@v5
         with:
-          repository: "TimefoldAI/timefold-solver"
-          path: "./timefold-solver"
-          fetch-depth: 0
-          ref: v${{ github.event.inputs.version }}
+          repository: TimefoldAI/timefold-quickstarts
+          path: ./timefold-quickstarts
+          ref: ${{ github.event.inputs.developmentBranch }}
+          fetch-depth: 0 # Otherwise merge will fail on account of not having history.
 
-      - uses: actions/setup-java@v3
+      - name: Checkout timefold-solver
+        uses: actions/checkout@v5
+        with:
+          repository: TimefoldAI/timefold-solver
+          path: ./timefold-solver
+          fetch-depth: 0
+          ref: v${{ github.event.inputs.javaVersion }}
+
+      - name: Delete release branch (if exists)
+        continue-on-error: true
+        run: git push -d origin $RELEASE_BRANCH_NAME
+
+      - uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
 
       - name: Set up Maven
-        uses: stCarolas/setup-maven@v4.5
+        uses: stCarolas/setup-maven@d6af6abeda15e98926a57b5aa970a96bb37f97d1 # v5
         with:
           maven-version: 3.9.3
 
-      # No need to wait for the upstream release to show up in Maven Central.
-      - name: Build the upstream release tag
-        working-directory: "./timefold-solver"
-        run: |
-          mvn -Dquickly install
-          cd ..
-          rm -rf timefold-solver
-
-      - name: Checkout timefold-quickstarts
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Create release branch and build release
+      - name: Update version
+        working-directory: ./timefold-quickstarts
         run: |
           git config user.name "Timefold Release Bot"
           git config user.email "release@timefold.ai"
-          git checkout -B ${{ github.event.inputs.releaseBranch }}
-          export OLD_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
-          export NEW_VERSION="${{ github.event.inputs.version }}"
+          git checkout -B $RELEASE_BRANCH_NAME
+          export OLD_JAVA_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
+          export NEW_JAVA_VERSION="${{ github.event.inputs.javaVersion }}"
           .github/scripts/change_versions.sh
+
+      # This step will fail if the Solver binaries aren't already on Maven Central.
+      - name: Create release branch and build release
+        working-directory: ./timefold-quickstarts
+        run: |
           mvn verify
-          git commit -am "chore: switch to version $NEW_VERSION"
-          git tag -a "v${{ github.event.inputs.version }}" -m "Release version ${{ github.event.inputs.version }}"
+          git commit -am "build: switch to version ${{ github.event.inputs.javaVersion }}"
+          git tag -a "v${{ github.event.inputs.javaVersion }}" -m "Release version ${{ github.event.inputs.javaVersion }}"
           git push --tags
 
       # Merge the release branch into the stable branch.
       # While merging, resolve conflicts by using everything from the release branch.
       # (Stable branch becomes the same as the release branch.)
       - name: Merge release branch into stable and prepare PR
+        working-directory: ./timefold-quickstarts
+        env:
+          GITHUB_TOKEN: ${{ secrets.JRELEASER_GITHUB_TOKEN }}
         run: |
           git checkout ${{ github.event.inputs.stableBranch }}
-          git checkout -B ${{ github.event.inputs.releaseBranch }}-bump
-          git checkout ${{ github.event.inputs.releaseBranch }}
+          git checkout -B $RELEASE_BRANCH_NAME-bump
+          git checkout $RELEASE_BRANCH_NAME
           git merge -s ours --no-edit ${{ github.event.inputs.stableBranch }}
-          git checkout ${{ github.event.inputs.releaseBranch }}-bump
-          git merge --squash ${{ github.event.inputs.releaseBranch }}
-          git commit -m "chore: release version ${{ github.event.inputs.version }}"
-          git push origin ${{ github.event.inputs.releaseBranch }}-bump
-          gh pr create --reviewer triceo,ge0ffrey --base ${{ github.event.inputs.stableBranch }} --head ${{ github.event.inputs.releaseBranch }}-bump --title "chore: release version ${{ github.event.inputs.version }}" --body-file .github/workflows/release-pr-body-stable.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.JRELEASER_GITHUB_TOKEN }}
+          git checkout $RELEASE_BRANCH_NAME-bump
+          git merge --squash $RELEASE_BRANCH_NAME
+          git commit -m "build: release version ${{ github.event.inputs.javaVersion }}"
+          git push origin $RELEASE_BRANCH_NAME-bump
+          gh pr create --reviewer triceo --base ${{ github.event.inputs.stableBranch }} --head $RELEASE_BRANCH_NAME-bump --title "build: release version ${{ github.event.inputs.javaVersion }}" --body-file .github/workflows/release-pr-body.md
 
-      - name: Set micro snapshot version on the release branch
+      - name: Put back the 999-SNAPSHOT version on the release branch
+        working-directory: ./timefold-quickstarts
         run: |
-          git checkout ${{ github.event.inputs.releaseBranch }}
-          export OLD_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
-          export NEW_VERSION="${{ github.event.inputs.nextMicroVersion }}-SNAPSHOT"
+          git checkout $RELEASE_BRANCH_NAME
+          export OLD_JAVA_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
+          export NEW_JAVA_VERSION="999-SNAPSHOT"
           .github/scripts/change_versions.sh
-          git commit -am "chore: switch to version $NEW_VERSION"
-          git push origin ${{ github.event.inputs.releaseBranch }}
+          git commit -am "build: move back to version $NEW_VERSION"
+          git push origin $RELEASE_BRANCH_NAME
 
-      - name: Switch development branch to next version and prepare PR
+      - name: Delete version branch (if exists)
+        continue-on-error: true
         run: |
-          git checkout ${{ github.event.inputs.developmentBranch }}
-          git checkout -B ${{ github.event.inputs.releaseBranch }}-bump2
-          export OLD_VERSION="$(find . -name pom.xml -exec grep '<version.ai.timefold.solver>' {} \;|tail -n 1|cut -d\> -f1 --complement|cut -d\< -f1)"
-          export NEW_VERSION="${{ github.event.inputs.nextVersion }}-SNAPSHOT"
-          .github/scripts/change_versions.sh
-          git commit -am "chore: switch to version $NEW_VERSION"
-          git push origin ${{ github.event.inputs.releaseBranch }}-bump2
-          gh pr create --reviewer triceo,ge0ffrey --base ${{ github.event.inputs.developmentBranch }} --head ${{ github.event.inputs.releaseBranch }}-bump2 --title "chore: move to ${{ github.event.inputs.nextVersion }}-SNAPSHOT" --body-file .github/workflows/release-pr-body-development.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.JRELEASER_GITHUB_TOKEN }}
+          java_version=${{ github.event.inputs.javaVersion }}
+          version="${java_version%.*}.x"
+          git push -d origin $version  
+
+      - name: Update release branch
+        working-directory: ./timefold-quickstarts
+        shell: bash
+        run: |
+          java_version=${{ github.event.inputs.javaVersion }}
+          version="${java_version%.*}.x"
+          git config user.name "Timefold Release Bot"
+          git config user.email "release@timefold.ai"
+          git checkout $RELEASE_BRANCH_NAME
+          git branch -m $RELEASE_BRANCH_NAME $version
+          git push origin -u $version
+          git push -d origin $RELEASE_BRANCH_NAME
