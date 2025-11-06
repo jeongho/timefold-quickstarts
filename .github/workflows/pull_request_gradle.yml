@@ -1,85 +1,68 @@
-name: Gradle CI
+name: Gradle
 
 on:
+  push:
+    branches: [stable, development, '*.x']
+    paths:
+      - 'settings.gradle'
+      - 'java/**/*'
+      - 'kotlin/**/*'
+      - '.github/**/*.yml'
   pull_request:
     branches: [stable, development, '*.x']
+    paths:
+      - 'settings.gradle'
+      - 'java/**/*'
+      - 'kotlin/**/*'
+      - '.github/**/*.yml'
 
 jobs:
   build:
     concurrency:
-      group: pull_request_gradle-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.quickstartDir }}
+      group: pull_request_gradle-${{ github.event_name }}-${{ github.head_ref }}-${{ matrix.module }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        quickstartDir: ['hello-world', 'use-cases/school-timetabling', 'technology/java-spring-boot']
+        module: ['java/hello-world', 'java/school-timetabling', 'java/spring-boot-integration']
+        java-version: [ 17 ] # Only the first supported LTS; already too many jobs here.
     timeout-minutes: 120
     steps:
-      # Clone timefold-solver
-      # Need to check for stale repo, since Github is not aware of the build chain and therefore doesn't automate it.
-      - name: Checkout timefold-solver to access the scripts
-        uses: actions/checkout@v3
-        with:
-          path: './timefold-solver'
-          repository: 'TimefoldAI/timefold-solver'
-      - name: Find the proper timefold-solver repo and branch
-        env:
-          CHAIN_USER: ${{ github.actor }}
-          CHAIN_BRANCH: ${{ github.head_ref }}
-          CHAIN_REPO: "timefold-solver"
-          CHAIN_DEFAULT_BRANCH: ${{ endsWith(github.head_ref, '.x') && github.head_ref || 'main' }}
-        shell: bash
-        run: |
-          ./timefold-solver/.github/scripts/check_chain_repo.sh
-          rm -rf ./timefold-solver
-      - name: Checkout the proper timefold-solver branch
-        uses: actions/checkout@v3
-        with:
-          repository: ${{ env.TARGET_CHAIN_USER }}/${{ env.TARGET_CHAIN_REPO }}
-          ref: ${{ env.TARGET_CHAIN_BRANCH }}
-          path: './timefold-solver'
-          fetch-depth: 0 # Otherwise merge in the next step will fail on account of not having history.
-      - name: Prevent stale fork of timefold-solver
-        env:
-          BLESSED_REPO: "timefold-solver"
-          BLESSED_BRANCH: ${{ endsWith(github.head_ref, '.x') && github.head_ref || 'main' }}
-        shell: bash
-        working-directory: ./timefold-solver
-        run: .github/scripts/prevent_stale_fork.sh
-
-      # Clone timefold-quickstarts
-      # No need to check for stale repo, as Github merges the main repo into the fork automatically.
       - name: Checkout timefold-quickstarts
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
         with:
           path: './timefold-quickstarts'
 
-      # Build the solver
-      - name: "Setup Java and Maven"
-        uses: actions/setup-java@v3
+      - name: Checkout timefold-solver (PR) # Checkout the PR branch first, if it exists
+        if: github.head_ref # Only true if this is a PR.
+        id: checkout-solver-pr
+        uses: actions/checkout@v5
+        continue-on-error: true
         with:
-          java-version: 17
+          repository: ${{ github.actor }}/timefold-solver
+          ref: ${{ github.head_ref }}
+          path: ./timefold-solver
+          fetch-depth: 0 # Otherwise merge will fail on account of not having history.
+      - name: Checkout timefold-solver (main) # Checkout the main branch if the PR branch does not exist
+        if: ${{ steps.checkout-solver-pr.outcome != 'success' }}
+        uses: actions/checkout@v5
+        with:
+          repository: TimefoldAI/timefold-solver
+          ref: main
+          path: ./timefold-solver
+          fetch-depth: 0 # Otherwise merge will fail on account of not having history.
+
+      # Build the solver
+      - name: "Setup Java and Gradle"
+        uses: actions/setup-java@v5
+        with:
+          java-version: ${{matrix.java-version}}
           distribution: 'temurin'
-          cache: 'maven'
+          cache: 'gradle'
       - name: Quickly build timefold-solver
         working-directory: ./timefold-solver
         run: mvn -B -Dquickly clean install
 
-        # Build and test the Gradle-enabled quickstarts
-      - name: Cache Gradle packages
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: gradle-
       - name: Build and test timefold-quickstarts
-        working-directory: ./timefold-quickstarts/${{ matrix.quickstartDir }}
+        working-directory: ./timefold-quickstarts/${{ matrix.module }}
         run: gradle build
-      - name: Cleanup Gradle Cache
-        # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
-        # Restoring these files from a GitHub Actions cache might cause problems for future builds.
-        run: |
-          rm -f ~/.gradle/caches/modules-2/modules-2.lock
-          rm -f ~/.gradle/caches/modules-2/gc.properties
